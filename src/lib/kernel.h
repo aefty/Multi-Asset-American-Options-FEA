@@ -106,7 +106,6 @@ class BlackScholes {
 
 #include "parameters.h"
 #include "penelty.h"
-#include "initialCondition.h"
 #include "boundary.h"
 
 
@@ -214,7 +213,7 @@ void BlackScholes<dim>::output_results() const {
 	DataOut<dim> data_out;
 
 	data_out.attach_dof_handler(dof_handler);
-	data_out.add_data_vector(solution, "U");
+	data_out.add_data_vector(solution, "V");
 
 	data_out.build_patches();
 
@@ -327,8 +326,6 @@ void BlackScholes<dim>::run() {
 	const unsigned int initial_global_refinement = 2;
 	const unsigned int n_adaptive_pre_refinement_steps = 4;
 
-	//GridGenerator::hyper_cube  (triangulation , 0.0,  5.0, false);
-
 	if (dim == 1) {
 		GridGenerator::hyper_rectangle(triangulation,
 		                               Point<dim>(S1_RANGE.at(0)),
@@ -366,15 +363,13 @@ start_time_iteration:
 	timestep_number = 0;
 	time            = 0;
 
-	output_results();
-
 	// Then we start the main loop until the computed time exceeds our
 	// end time of 0.5. The first task is to build the right hand
 	// side of the linear system we need to solve in each time step.
 	// Recall that it contains the term $MU^{n-1}-(1-\theta)k_n AU^{n-1}$.
 	// We put these terms into the variable system_rhs, with the
 	// help of a temporary vector:
-	while (time <= STRIKE_TIME) {
+	while (time <= EXPIRE_TIME) {
 		time += time_step;
 		++timestep_number;
 
@@ -461,7 +456,7 @@ start_time_iteration:
 		// system, generate graphical data, and...
 		solve_time_step();
 
-		output_results();
+
 
 		// ...take care of mesh refinement. Here, what we want to do is
 		// (i) refine the requested number of times at the very beginning
@@ -472,8 +467,7 @@ start_time_iteration:
 		// The time loop and, indeed, the main part of the program ends
 		// with starting into the next time step by setting old_solution
 		// to the solution we have just computed.
-		if ((timestep_number == 1) &&
-		        (pre_refinement_step < n_adaptive_pre_refinement_steps)) {
+		if ((timestep_number == 1) && (pre_refinement_step < n_adaptive_pre_refinement_steps)) {
 			refine_mesh (initial_global_refinement,
 			             initial_global_refinement + n_adaptive_pre_refinement_steps);
 			++pre_refinement_step;
@@ -491,6 +485,7 @@ start_time_iteration:
 			forcing_terms.reinit (solution.size());
 		}
 
+		output_results();
 		old_solution = solution;
 	}
 }

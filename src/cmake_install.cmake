@@ -1,4 +1,4 @@
-# Install script for directory: /Users/aryan/gd/USI/hpc/project/code/build/v0
+# Install script for directory: /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -33,7 +33,7 @@ else()
   set(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 endif()
 
-file(WRITE "/Users/aryan/gd/USI/hpc/project/code/build/v0/${CMAKE_INSTALL_MANIFEST}" "")
+file(WRITE "/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/${CMAKE_INSTALL_MANIFEST}" "")
 foreach(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  file(APPEND "/Users/aryan/gd/USI/hpc/project/code/build/v0/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  file(APPEND "/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 endforeach()

@@ -59,11 +59,13 @@
 
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 // Then the usual placing of all content of this program into a namespace and
 // the importation of the deal.II namespace into the one we will work in:
-namespace Step26 {
+namespace BS_MAA {
 using namespace dealii;
+
 
 #include "lib/kernel.h"
 
@@ -78,7 +80,7 @@ using namespace dealii;
 int main() {
 	try {
 		using namespace dealii;
-		using namespace Step26;
+		using namespace BS_MAA;
 
 		deallog.depth_console(0);
 

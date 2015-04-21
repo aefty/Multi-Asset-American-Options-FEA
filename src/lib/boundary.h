@@ -25,26 +25,31 @@
  * Author: Wolfgang Bangerth, Texas A&M University, 2013
  */
 
-
+#include "payoff.h"
 
 template<int dim>
 class BoundaryValues : public Function<dim> {
   public:
-	virtual double value (const Point<dim>  &p, const unsigned int component = 10) const;
+	virtual double value (const Point<dim>  &S, const unsigned int component = 0) const;
 };
 
 
 template<int dim>
-double BoundaryValues<dim>::value (const Point<dim> &p, const unsigned int component) const {
+double BoundaryValues<dim>::value (const Point<dim> &S, const unsigned int component) const {
 	Assert(component == 0, ExcInternalError());
-
 	double time = this->get_time();
+	std::vector<double> S_temp ;
 
-
-	if (time > .25) {
-		return  1;
+	if (dim == 3) {
+		S_temp = {S[0], S[1], S[2]};
+	} else if (dim == 2) {
+		S_temp = {S[0], S[1]};
 	} else {
-		return -1;
+		S_temp = {S[0]};
 	}
-}
+
+	std::cout << "asdfasdf";
+
+	return Payoff_average(S_temp, STRIKE_PRICE, time,  RFR);
+};
 
