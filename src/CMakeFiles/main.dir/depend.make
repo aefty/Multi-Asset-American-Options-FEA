@@ -1675,10 +1675,10 @@ CMakeFiles/main.dir/main.cc.o: /Applications/deal.II.app/Contents/Resources/opt/
 CMakeFiles/main.dir/main.cc.o: /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_SerialComm.h
 CMakeFiles/main.dir/main.cc.o: /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_SerialCommData.h
 CMakeFiles/main.dir/main.cc.o: /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_config.h
-CMakeFiles/main.dir/main.cc.o: lib/boundary.h
+CMakeFiles/main.dir/main.cc.o: lib/Boundary.h
 CMakeFiles/main.dir/main.cc.o: lib/kernel.h
-CMakeFiles/main.dir/main.cc.o: lib/parameters.h
-CMakeFiles/main.dir/main.cc.o: lib/payoff.h
+CMakeFiles/main.dir/main.cc.o: lib/payoff_functions.h
 CMakeFiles/main.dir/main.cc.o: lib/penelty.h
 CMakeFiles/main.dir/main.cc.o: main.cc
+CMakeFiles/main.dir/main.cc.o: problem/euro2d.h
 

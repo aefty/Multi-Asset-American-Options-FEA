@@ -5,7 +5,7 @@
  *
  * HPC : Software Atelier 2015
  * Multi-Asset American Options Finite Element Implementation
- * Edite by : Aryan Eftekhari & Edoardo Vecchi
+ * Edite by : Aryan Eftekhari
  *
  * ---------------------------------------------------------------------
  *
@@ -24,7 +24,6 @@
  *
  * Author: Wolfgang Bangerth, Texas A&M University, 2013
  */
-
 
 
 // The program starts with the usual include files, all of which you should
@@ -64,11 +63,9 @@
 // Then the usual placing of all content of this program into a namespace and
 // the importation of the deal.II namespace into the one we will work in:
 namespace BS_MAA {
-using namespace dealii;
-
-
-#include "lib/kernel.h"
-
+	using namespace dealii;
+#include "problem/euro2d.h"
+#include "lib/BlackScholes.h"
 }
 
 

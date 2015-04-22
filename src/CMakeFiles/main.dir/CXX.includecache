@@ -19172,25 +19172,17 @@ Epetra_Data.h
 
 /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_config.h
 
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/boundary.h
-payoff.h
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/payoff.h
+/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/Boundary.h
 
 /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/kernel.h
-parameters.h
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/parameters.h
+payoff_functions.h
+/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/payoff_functions.h
 penelty.h
 /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/penelty.h
-boundary.h
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/boundary.h
+Boundary.h
+/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/Boundary.h
 
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/parameters.h
-iostream
--
-vector
--
-
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/payoff.h
+/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/payoff_functions.h
 
 /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/penelty.h
 
@@ -19255,6 +19247,14 @@ iostream
 -
 algorithm
 -
+problem/euro2d.h
+/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/problem/euro2d.h
 lib/kernel.h
 /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/kernel.h
+
+/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/problem/euro2d.h
+iostream
+-
+vector
+-
 

@@ -5,7 +5,7 @@
  *
  * HPC : Software Atelier 2015
  * Multi-Asset American Options Finite Element Implementation
- * Edite by: Aryan Eftekhari & Edoardo Vecchi
+ * Edited by: Aryan Eftekhari & Edoardo Vecchi
  *
  * ---------------------------------------------------------------------
  *
@@ -24,32 +24,27 @@
  *
  * Author: Wolfgang Bangerth, Texas A&M University, 2013
  */
+#include "problem/euro2d.h"
 
-#include "payoff.h"
-
-template<int dim>
-class BoundaryValues : public Function<dim> {
+template<int dim, template <int> class PayoffClass>
+class Boundary : public Function<dim> , public PayoffClass<dim> {
   public:
-	virtual double value (const Point<dim>  &S, const unsigned int component = 0) const;
+	Boundary() {};
+	virtual double value (const Point<dim>  &S, const unsigned int component = 0) const {
+		Assert(component == 0, ExcInternalError());
+		double time = this->get_time();
+		std::vector<double> S_temp ;
+
+		if (dim == 3) {
+			S_temp = {S[0], S[1], S[2]};
+		}  else if (dim == 2) {
+			S_temp = {S[0], S[1]};
+		} else {
+			S_temp = {S[0]};
+		}
+
+		return this->payoff_avg (S_temp, STRIKE_PRICE, time,  RFR);
+	};
 };
 
-
-template<int dim>
-double BoundaryValues<dim>::value (const Point<dim> &S, const unsigned int component) const {
-	Assert(component == 0, ExcInternalError());
-	double time = this->get_time();
-	std::vector<double> S_temp ;
-
-	if (dim == 3) {
-		S_temp = {S[0], S[1], S[2]};
-	} else if (dim == 2) {
-		S_temp = {S[0], S[1]};
-	} else {
-		S_temp = {S[0]};
-	}
-
-	std::cout << "asdfasdf";
-
-	return Payoff_average(S_temp, STRIKE_PRICE, time,  RFR);
-};
 

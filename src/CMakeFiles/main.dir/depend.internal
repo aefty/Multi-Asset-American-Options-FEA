@@ -1676,9 +1676,9 @@ CMakeFiles/main.dir/main.cc.o
  /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_SerialComm.h
  /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_SerialCommData.h
  /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_config.h
- /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/boundary.h
+ /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/Boundary.h
  /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/kernel.h
- /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/parameters.h
- /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/payoff.h
+ /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/payoff_functions.h
  /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/penelty.h
  /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/main.cc
+ /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/problem/euro2d.h

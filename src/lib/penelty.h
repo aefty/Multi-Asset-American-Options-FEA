@@ -1,11 +1,11 @@
 /**
  * source.h
  * =============
- * Penelty term
+ * Penalty term
  *
  * HPC : Software Atelier 2015
  * Multi-Asset American Options Finite Element Implementation
- * Edite by: Aryan Eftekhari & Edoardo Vecchi
+ * Edited by: Aryan Eftekhari
  *
  * ---------------------------------------------------------------------
  *
@@ -28,30 +28,21 @@
 template<int dim>
 class Penelty : public Function<dim> {
   public:
-	Penelty ()
-		:
-		Function<dim>(),
-		period (0.01)
-	{}
+	Penelty(): Function<dim>() {};
 
-	virtual double value (const Point<dim> &p, const unsigned int component = 0) const;
+	virtual double value (const Point<dim> &p, const unsigned int component = 0) const {
+		Assert (component == 0, ExcInternalError());
+		Assert (dim == 2, ExcNotImplemented());
+
+		const double time = this->get_time();
+
+		//std::cout << "AMERICAN";
+
+		return 10;
+	};
 
   private:
-	const double period;
-};
 
-
-template<int dim>
-double Penelty<dim>::value (const Point<dim> &p, const unsigned int component) const {
-
-	Assert (component == 0, ExcInternalError());
-	Assert (dim == 2, ExcNotImplemented());
-
-	const double time = this->get_time();
-
-	std::cout << "AMERICAN";
-
-	return 10;
 };
 
 
