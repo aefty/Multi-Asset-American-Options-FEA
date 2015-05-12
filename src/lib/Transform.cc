@@ -1,11 +1,10 @@
 /**
- * boundary.h
+ * Transform.h
  * =============
- * boundary conditions
+ * Penalty term
  *
  * HPC : Software Atelier 2015
  * Multi-Asset American Options Finite Element Implementation
- * Edited by: Aryan Eftekhari & Edoardo Vecchi
  *
  * ---------------------------------------------------------------------
  *
@@ -24,27 +23,38 @@
  *
  * Author: Wolfgang Bangerth, Texas A&M University, 2013
  */
-#include "problem/euro2d.h"
 
-template<int dim, template <int> class PayoffClass>
-class Boundary : public Function<dim> , public PayoffClass<dim> {
+template<int dim>
+class Transform : public Function<dim> {
+	/**
+	 * Variable Definition
+	 */
+	std::vector<double> tempVec;
+
   public:
-	Boundary() {};
-	virtual double value (const Point<dim>  &S, const unsigned int component = 0) const {
-		Assert(component == 0, ExcInternalError());
-		double time = this->get_time();
-		std::vector<double> S_temp ;
+	Transform() {};
 
-		if (dim == 3) {
-			S_temp = {S[0], S[1], S[2]};
-		}  else if (dim == 2) {
-			S_temp = {S[0], S[1]};
-		} else {
-			S_temp = {S[0]};
+	virtual double S2X (std::vector<double> S) const {
+
+		tempVec.clear();
+
+		for (int i = 0; i < dim; ++i) {
+			tempVec.push_back(log(S[i]));
 		}
 
-		return this->payoff_avg (S_temp, STRIKE_PRICE, time,  RFR);
+		return tempVec;
 	};
+
+	virtual double X2S (std::vector<double> X) const {
+
+		tempVec.clear();
+
+		for (int i = 0; i < dim; ++i) {
+			tempVec.push_back(exp (X[i]));
+		}
+
+		return tempVec;
+	};
+
+  private:
 };
-
-

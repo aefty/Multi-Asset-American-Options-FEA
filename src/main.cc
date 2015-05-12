@@ -5,7 +5,7 @@
  *
  * HPC : Software Atelier 2015
  * Multi-Asset American Options Finite Element Implementation
- * Edite by : Aryan Eftekhari
+ * Edited by: Aryan Eftekhari
  *
  * ---------------------------------------------------------------------
  *
@@ -56,24 +56,21 @@
 #include <deal.II/numerics/solution_transfer.h>
 #include <deal.II/numerics/matrix_tools.h>
 
+#include <deal.II/lac/sparse_direct.h>
+
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <math.h>
 
-// Then the usual placing of all content of this program into a namespace and
-// the importation of the deal.II namespace into the one we will work in:
 namespace BS_MAA {
 	using namespace dealii;
-#include "problem/euro2d.h"
-#include "lib/BlackScholes.h"
+#include "problem/config.cc"
+#include "lib/BlackScholes.cc"
+
 }
 
 
-// @sect3{The <code>main</code> function}
-//
-// Having made it this far,  there is, again, nothing
-// much to discuss for the main function of this
-// program: it looks like all such functions since step-6.
 int main() {
 	try {
 		using namespace dealii;
@@ -81,8 +78,8 @@ int main() {
 
 		deallog.depth_console(0);
 
-		BlackScholes<DIM> heat_equation_solver;
-		heat_equation_solver.run();
+		BlackScholes<DIM> blackScholes;
+		blackScholes.run();
 
 		//BlackScholes.output_results();
 

@@ -5,7 +5,6 @@
  *
  * HPC : Software Atelier 2015
  * Multi-Asset American Options Finite Element Implementation
- * Edited by : Aryan Eftekhari
  *
  * ---------------------------------------------------------------------
  *
@@ -25,36 +24,57 @@
  * Author: Wolfgang Bangerth, Texas A&M University, 2013
  */
 
-
-// @sect3{The <code>BlackScholes</code> class}
-//
-// The next piece is the declaration of the main class of this program. It
-// follows the well trodden path of previous examples. If you have looked at
-// step-6, for example, the only thing worth noting here is that we need to
-// build two matrices (the mass and Laplace matrix) and keep the current and
-// previous time step's solution. We then also need to store the current
-// time, the size of the time step, and the number of the current time
-// step. The last of the member variables denotes the theta parameter
-// discussed in the introduction that allows us to treat the explicit and
-// implicit Euler methods as well as the Crank-Nicolson method and other
-// generalizations all in one program.
-//
-// As far as member functions are concerned, the only possible surprise is
-// that the <code>refine_mesh</code> function takes arguments for the
-// minimal and maximal mesh refinement level. The purpose of this is
-// discussed in the introduction.
-
-#include "Payoff.h"
-#include "Penelty.h"
-#include "Boundary.h"
+#include "Penelty.cc"
+#include "Boundary.cc"
 
 template<int dim>
 class BlackScholes {
+	/**
+	 * Variable Definition
+	 */
+
+	// Discretization
+	Triangulation<dim>   triangulation;
+	FE_Q<dim>            fe;
+	DoFHandler<dim>      dof_handler;
+
+	ConstraintMatrix     constraints;
+
+	// Matrix containers
+
+	SparsityPattern      sparsity_pattern;
+	SparseMatrix<double> mass_matrix;
+	SparseMatrix<double> laplace_matrix;
+	SparseMatrix<double> advection_matrix;
+	SparseMatrix<double> system_matrix;
+
+	Vector<double>       solution;
+	Vector<double>       old_solution;
+	Vector<double>       system_rhs;
+
+	/*
+	SparsityPattern      sparsity_pattern;
+	PETScWrappers::MPI::SparseMatrix <double> mass_matrix;
+	PETScWrappers::MPI::SparseMatrix <double> laplace_matrix;
+	PETScWrappers::MPI::SparseMatrix <double> complication_matrix;
+	PETScWrappers::MPI::SparseMatrix <double> system_matrix;
+
+	PETScWrappers::MPI::Vector  <double>       solution;
+	PETScWrappers::MPI::Vector  <double>       old_solution;
+	PETScWrappers::MPI::Vector  <double>       system_rhs;
+	*/
+
+	// Time & Other
+	double               time;
+	double               time_step;
+	unsigned int         timestep_number;
+	const double         theta;
+
   public:
 	/**
 	 * Constructor
 	 */
-	BlackScholes(): fe(1), dof_handler(triangulation), time_step(TIME_STEP), theta(THETA) {};
+	BlackScholes(): fe(1), dof_handler(triangulation), time_step(DT), theta(THETA) {};
 
 	/**
 	 * Run Function
@@ -62,27 +82,26 @@ class BlackScholes {
 	void run() {
 		const unsigned int initial_global_refinement = 2;
 		const unsigned int n_adaptive_pre_refinement_steps = 4;
-
-		if (dim == 1) {
-			GridGenerator::hyper_rectangle(triangulation,
-			                               Point<dim>(S1_RANGE.at(0)),
-			                               Point<dim>(S1_RANGE.at(1)));
-		} else if ( dim == 2) {
-			GridGenerator::hyper_rectangle(triangulation,
-			                               Point<dim>(S1_RANGE.at(0), S2_RANGE.at(0)),
-			                               Point<dim>(S1_RANGE.at(1), S2_RANGE.at(1)));
-		} else {
-			GridGenerator::hyper_rectangle(triangulation,
-			                               Point<dim>(S1_RANGE.at(0), S2_RANGE.at(0), S3_RANGE.at(0)),
-			                               Point<dim>(S1_RANGE.at(1), S2_RANGE.at(1), S3_RANGE.at(2)));
-		}
-
-		triangulation.refine_global (initial_global_refinement);
-
-		setup_system();
 		unsigned int pre_refinement_step = 0;
 		Vector<double> tmp;
 		Vector<double> forcing_terms;
+
+		if (dim == 1) {
+			GridGenerator::hyper_rectangle(triangulation,
+			                               Point<dim>(X1_RANGE.at(0)),
+			                               Point<dim>(X1_RANGE.at(1)));
+		} else if (dim == 2) {
+			GridGenerator::hyper_rectangle(triangulation,
+			                               Point<dim>(X1_RANGE.at(0), X2_RANGE.at(0)),
+			                               Point<dim>(X1_RANGE.at(1), X2_RANGE.at(1)));
+		} else if (dim == 3) {
+			GridGenerator::hyper_rectangle(triangulation,
+			                               Point<dim>(X1_RANGE.at(0), X2_RANGE.at(0), X3_RANGE.at(0)),
+			                               Point<dim>(X1_RANGE.at(1), X2_RANGE.at(1), X3_RANGE.at(1)));
+		}
+
+		triangulation.refine_global (initial_global_refinement);
+		setup_system();
 
 		{
 		start_time_iteration:
@@ -90,20 +109,13 @@ class BlackScholes {
 			tmp.reinit (solution.size());
 			forcing_terms.reinit (solution.size());
 
-
 			VectorTools::interpolate(dof_handler, ZeroFunction<dim>(), old_solution);
 			solution = old_solution;
 
 			timestep_number = 0;
-			time            = 0;
+			time = 0;
 
-			// Then we start the main loop until the computed time exceeds our
-			// end time of 0.5. The first task is to build the right hand
-			// side of the linear system we need to solve in each time step.
-			// Recall that it contains the term $MU^{n-1}-(1-\theta)k_n AU^{n-1}$.
-			// We put these terms into the variable system_rhs, with the
-			// help of a temporary vector:
-			while (time <= EXPIRE_TIME) {
+			while (time <= T) {
 
 				time += time_step;
 				++timestep_number;
@@ -131,7 +143,7 @@ class BlackScholes {
 				system_rhs.add(-(1 - theta) * time_step, tmp); // MU^(n-1) + AU^(n-1) * -(1 - theta) * time_step
 
 
-				// 2) Make Penlety term if American
+				// 2) Make Penalty term if American
 				if (STYLE_AMERICAN) {
 					Penelty<dim> penelty_term;
 					penelty_term.set_time(time);
@@ -169,7 +181,8 @@ class BlackScholes {
 				// done many times before. The result is used to also
 				// set the correct boundary values in the linear system:
 				{
-					Boundary<dim, Payoff_Functions> boundary_values_function;
+					Boundary<dim> boundary_values_function;
+
 					boundary_values_function.set_time(time);
 
 					std::map<types::global_dof_index, double> boundary_values;
@@ -223,33 +236,6 @@ class BlackScholes {
 	}
 
   private:
-	/**
-	 * Variable Definition
-	 */
-
-	// Discretization
-	Triangulation<dim>   triangulation;
-	FE_Q<dim>            fe;
-	DoFHandler<dim>      dof_handler;
-
-	ConstraintMatrix     constraints;
-
-	// Matrix containers
-	SparsityPattern      sparsity_pattern;
-	SparseMatrix<double> mass_matrix;
-	SparseMatrix<double> laplace_matrix;
-	SparseMatrix<double> complication_matrix;
-	SparseMatrix<double> system_matrix;
-
-	Vector<double>       solution;
-	Vector<double>       old_solution;
-	Vector<double>       system_rhs;
-
-	// Time & Other
-	double               time;
-	double               time_step;
-	unsigned int         timestep_number;
-	const double         theta;
 
 	/**
 	 * 1) setup_system : General system and matrix setup, also deal with hanging nodes
@@ -276,10 +262,82 @@ class BlackScholes {
 
 		mass_matrix.reinit(sparsity_pattern);
 		laplace_matrix.reinit(sparsity_pattern);
+		advection_matrix.reinit(sparsity_pattern);
 		system_matrix.reinit(sparsity_pattern);
 
-		MatrixCreator::create_mass_matrix(dof_handler, QGauss<dim>(fe.degree + 1), mass_matrix, (const Function<dim> *)0, constraints);
-		MatrixCreator::create_laplace_matrix(dof_handler, QGauss<dim>(fe.degree + 1), laplace_matrix, (const Function<dim> *)0, constraints);
+
+		//std::MatrixCreator_update::internal::test();
+
+		//MatrixCreator::create_mass_matrix(dof_handler, QGauss<dim>(fe.degree + 1), mass_matrix, (const Function<dim> *)0, constraints);
+		//MatrixCreator::create_laplace_matrix(dof_handler, QGauss<dim>(fe.degree + 1), laplace_matrix, (const Function<dim> *)0, constraints);
+		//std::MatrixCreator_update::create_advection_matrix(dof_handler, QGauss<dim>(fe.degree + 1), advection_matrix, (const Function<dim> *)0, constraints);
+
+
+		QGauss<dim>  quadrature_formula(dim);
+		FEValues<dim> fe_values (fe, quadrature_formula, update_values | update_gradients | update_JxW_values);
+
+
+		const unsigned int   dofs_per_cell = fe.dofs_per_cell;
+		const unsigned int   n_q_points    = quadrature_formula.size();
+
+		FullMatrix<double>   cell_matrix_1 (dofs_per_cell, dofs_per_cell);
+		FullMatrix<double>   cell_matrix_2 (dofs_per_cell, dofs_per_cell);
+		FullMatrix<double>   cell_matrix_3 (dofs_per_cell, dofs_per_cell);
+
+		Tensor<1, dim>  B;
+
+		B[0] = 1.0;
+		B[1] = 2.0;
+
+		//		Vector<double> cell_rhs (dofs_per_cell);
+		std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
+
+		typename DoFHandler<dim>::active_cell_iterator
+		cell = dof_handler.begin_active(),
+		endc = dof_handler.end();
+
+		for (; cell != endc; ++cell) {
+			fe_values.reinit (cell);
+			cell_matrix_1 = 0;
+			cell_matrix_2 = 0;
+			cell_matrix_3 = 0;
+
+			cell_rhs = 0;
+			for (unsigned int q_index = 0; q_index < n_q_points; ++q_index) {
+				for (unsigned int i = 0; i < dofs_per_cell; ++i) {
+					for (unsigned int j = 0; j < dofs_per_cell; ++j) {
+
+						cell_matrix_1(i, j) += (fe_values.shape_value (i, q_index) *
+						                        fe_values.shape_value (j, q_index) *
+						                        fe_values.JxW (q_index));
+
+						cell_matrix_2(i, j) += (fe_values.shape_grad (i, q_index) *
+						                        fe_values.shape_grad (j, q_index) *
+						                        fe_values.JxW (q_index));
+
+						cell_matrix_3(i, j) += (fe_values.shape_value (i, q_index) * B) *
+						                       fe_values.shape_grad (j, q_index) * fe_values.JxW (q_index);
+					}
+				}
+			}
+
+			cell->get_dof_indices (local_dof_indices);
+			for (unsigned int i = 0; i < dofs_per_cell; ++i) {
+				for (unsigned int j = 0; j < dofs_per_cell; ++j) {
+					mass_matrix.add (local_dof_indices[i],
+					                 local_dof_indices[j],
+					                 cell_matrix_1(i, j));
+
+					laplace_matrix.add (local_dof_indices[i],
+					                    local_dof_indices[j],
+					                    cell_matrix_2(i, j));
+
+					advection_matrix.add (local_dof_indices[i],
+					                      local_dof_indices[j],
+					                      cell_matrix_3(i, j));
+				}
+			}
+		}
 
 		solution.reinit(dof_handler.n_dofs());
 		old_solution.reinit(dof_handler.n_dofs());
@@ -297,6 +355,22 @@ class BlackScholes {
 		preconditioner.initialize(system_matrix, 1.0);
 
 		cg.solve(system_matrix, solution, system_rhs, preconditioner);
+
+		/** Use UMFPACK */
+		//================
+		//SparseDirectUMFPACK dr;
+		//Vector<double> temp;
+		//SparseDirectUMFPACK  A_direct;
+		//A_direct.initialize(system_matrix);
+		//A_direct.vmult (solution, system_rhs);
+		//temp = solution;
+		//A_direct.vmult (temp, system_rhs);
+		//system_matrix.residual(temp, solution, system_rhs);
+		//std::cout << temp;
+		//std::cout << "=====";
+		//std::cout << temp.l2_norm();
+		//exit(0);
+
 
 		constraints.distribute(solution);
 

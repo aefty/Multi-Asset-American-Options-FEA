@@ -5,11 +5,11 @@
  *
  * HPC : Software Atelier 2015
  * Multi-Asset American Options Finite Element Implementation
- * Aryan Eftekhari
  */
 
 #include <iostream>
 #include <vector>
+
 
 /** Mesh Parameters
 * ===============
@@ -27,18 +27,19 @@ const double ERR_CONF_INT_COURSE = 0.2;
 const double THETA = 0.5;
 
 // Contract Parameters
-const double RFR = 0.3;
-std::vector<double> ASSET_PRICE = {100.0};
-std::vector<double> ASSET_SD = {10.0};
-double STRIKE_PRICE = .2;
+const double R = 0.1;
+std::vector<double> X = {1.0};
+std::vector<double> X_SD = {0.05};
 
 const bool STYLE_AMERICAN = false;
 
 // Domain Parameters
 const int DIM = 2;
-std::vector<double> S1_RANGE = {0.0, 1.0};
-std::vector<double> S2_RANGE = {0.0, 1.0};
-std::vector<double> S3_RANGE = {1.0, 10.0};
+std::vector<double> X1_RANGE = { -10.0, 10.0};
+std::vector<double> X2_RANGE = { -10.0, 10.0};
+std::vector<double> X3_RANGE = { -10.0, 10.0};
 
-const double TIME_STEP = 1.0 / 300;
-const double EXPIRE_TIME = 2.0 * 25.0 * TIME_STEP;
+const double DT = 1.0 / 100;
+const double T = 1.0 * 25.0 * DT;
+
+const long double EPS = 0.0000001; // 10^-6

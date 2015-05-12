@@ -1,15 +1,16 @@
 #!/bin/sh
-echo "Project Setup..."
+echo "Project Setup...\n"
 cp ../CMakeLists.txt CMakeLists.txt
 mkdir output
 clear
 
 echo "Setting Up Cmake File... \n"
 cmake -DCMAKE_INSTALL_PREFIX=/Applications/deal.II.app
+cmake -DDEAL_II_WITH_UMMFPACK=OFF
 clear
 
 echo "Compiling main.cc ... \n"
 make
 clear
 
-echo "Project steup done... \n"
+echo "Project setup done... \n"
