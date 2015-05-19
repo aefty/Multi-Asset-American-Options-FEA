@@ -211,7 +211,7 @@ class BlackScholes {
 				// The time loop and, indeed, the main part of the program ends
 				// with starting into the next time step by setting old_solution
 				// to the solution we have just computed.
-				if ((timestep_number == 1) && (pre_refinement_step < n_adaptive_pre_refinement_steps)) {
+				if (REFINE_ON && (timestep_number == 1) && (pre_refinement_step < n_adaptive_pre_refinement_steps)) {
 					refine_mesh (initial_global_refinement,
 					             initial_global_refinement + n_adaptive_pre_refinement_steps);
 					++pre_refinement_step;
@@ -222,7 +222,7 @@ class BlackScholes {
 					std::cout << std::endl;
 
 					goto start_time_iteration;
-				} else if ((timestep_number > 0) && (timestep_number % MESH_REFINE_PERIOD == 0)) {
+				} else if (REFINE_ON && (timestep_number > 0) && (timestep_number % MESH_REFINE_PERIOD == 0)) {
 					refine_mesh (initial_global_refinement,
 					             initial_global_refinement + n_adaptive_pre_refinement_steps);
 					tmp.reinit (solution.size());
@@ -265,78 +265,76 @@ class BlackScholes {
 		advection_matrix.reinit(sparsity_pattern);
 		system_matrix.reinit(sparsity_pattern);
 
-
-		//std::MatrixCreator_update::internal::test();
-
-		//MatrixCreator::create_mass_matrix(dof_handler, QGauss<dim>(fe.degree + 1), mass_matrix, (const Function<dim> *)0, constraints);
-		//MatrixCreator::create_laplace_matrix(dof_handler, QGauss<dim>(fe.degree + 1), laplace_matrix, (const Function<dim> *)0, constraints);
 		//std::MatrixCreator_update::create_advection_matrix(dof_handler, QGauss<dim>(fe.degree + 1), advection_matrix, (const Function<dim> *)0, constraints);
 
+		if (1) {
 
-		QGauss<dim>  quadrature_formula(dim);
-		FEValues<dim> fe_values (fe, quadrature_formula, update_values | update_gradients | update_JxW_values);
+			QGauss<dim>  quadrature_formula(dim);
+			FEValues<dim> fe_values (fe, quadrature_formula, update_values | update_gradients | update_JxW_values);
 
+			const unsigned int   dofs_per_cell = fe.dofs_per_cell;
+			const unsigned int   n_q_points    = quadrature_formula.size();
 
-		const unsigned int   dofs_per_cell = fe.dofs_per_cell;
-		const unsigned int   n_q_points    = quadrature_formula.size();
+			FullMatrix<double>   cell_matrix_1 (dofs_per_cell, dofs_per_cell);
+			FullMatrix<double>   cell_matrix_2 (dofs_per_cell, dofs_per_cell);
+			FullMatrix<double>   cell_matrix_3 (dofs_per_cell, dofs_per_cell);
 
-		FullMatrix<double>   cell_matrix_1 (dofs_per_cell, dofs_per_cell);
-		FullMatrix<double>   cell_matrix_2 (dofs_per_cell, dofs_per_cell);
-		FullMatrix<double>   cell_matrix_3 (dofs_per_cell, dofs_per_cell);
+			Tensor<1, dim>  B;
 
-		Tensor<1, dim>  B;
+			B[0] = 1.0;
+			B[1] = 2.0;
 
-		B[0] = 1.0;
-		B[1] = 2.0;
+			//		Vector<double> cell_rhs (dofs_per_cell);
+			std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
 
-		//		Vector<double> cell_rhs (dofs_per_cell);
-		std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
+			typename DoFHandler<dim>::active_cell_iterator
+			cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
 
-		typename DoFHandler<dim>::active_cell_iterator
-		cell = dof_handler.begin_active(),
-		endc = dof_handler.end();
+			for (; cell != endc; ++cell) {
+				fe_values.reinit (cell);
+				cell_matrix_1 = 0;
+				cell_matrix_2 = 0;
+				cell_matrix_3 = 0;
 
-		for (; cell != endc; ++cell) {
-			fe_values.reinit (cell);
-			cell_matrix_1 = 0;
-			cell_matrix_2 = 0;
-			cell_matrix_3 = 0;
+				for (unsigned int q_index = 0; q_index < n_q_points; ++q_index) {
+					for (unsigned int i = 0; i < dofs_per_cell; ++i) {
+						for (unsigned int j = 0; j < dofs_per_cell; ++j) {
 
-			cell_rhs = 0;
-			for (unsigned int q_index = 0; q_index < n_q_points; ++q_index) {
+							cell_matrix_1(i, j) += (fe_values.shape_value (i, q_index) *
+							                        fe_values.shape_value (j, q_index) *
+							                        fe_values.JxW (q_index));
+
+							cell_matrix_2(i, j) += (fe_values.shape_grad (i, q_index) *
+							                        fe_values.shape_grad (j, q_index) *
+							                        fe_values.JxW (q_index));
+
+							cell_matrix_3(i, j) += (fe_values.shape_value (i, q_index) * B) *
+							                       fe_values.shape_grad (j, q_index) * fe_values.JxW (q_index);
+						}
+					}
+				}
+
+				cell->get_dof_indices (local_dof_indices);
 				for (unsigned int i = 0; i < dofs_per_cell; ++i) {
 					for (unsigned int j = 0; j < dofs_per_cell; ++j) {
+						mass_matrix.add (local_dof_indices[i],
+						                 local_dof_indices[j],
+						                 cell_matrix_1(i, j));
 
-						cell_matrix_1(i, j) += (fe_values.shape_value (i, q_index) *
-						                        fe_values.shape_value (j, q_index) *
-						                        fe_values.JxW (q_index));
+						laplace_matrix.add (local_dof_indices[i],
+						                    local_dof_indices[j],
+						                    cell_matrix_2(i, j));
 
-						cell_matrix_2(i, j) += (fe_values.shape_grad (i, q_index) *
-						                        fe_values.shape_grad (j, q_index) *
-						                        fe_values.JxW (q_index));
-
-						cell_matrix_3(i, j) += (fe_values.shape_value (i, q_index) * B) *
-						                       fe_values.shape_grad (j, q_index) * fe_values.JxW (q_index);
+						advection_matrix.add (local_dof_indices[i],
+						                      local_dof_indices[j],
+						                      cell_matrix_3(i, j));
 					}
 				}
 			}
-
-			cell->get_dof_indices (local_dof_indices);
-			for (unsigned int i = 0; i < dofs_per_cell; ++i) {
-				for (unsigned int j = 0; j < dofs_per_cell; ++j) {
-					mass_matrix.add (local_dof_indices[i],
-					                 local_dof_indices[j],
-					                 cell_matrix_1(i, j));
-
-					laplace_matrix.add (local_dof_indices[i],
-					                    local_dof_indices[j],
-					                    cell_matrix_2(i, j));
-
-					advection_matrix.add (local_dof_indices[i],
-					                      local_dof_indices[j],
-					                      cell_matrix_3(i, j));
-				}
-			}
+		} else {
+			MatrixCreator::create_mass_matrix(dof_handler, QGauss<dim>(fe.degree + 1), mass_matrix, (const Function<dim> *)0, constraints);
+			MatrixCreator::create_laplace_matrix(dof_handler, QGauss<dim>(fe.degree + 1), laplace_matrix, (const Function<dim> *)0, constraints);
 		}
 
 		solution.reinit(dof_handler.n_dofs());

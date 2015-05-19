@@ -22,6 +22,7 @@
 const int MESH_REFINE_PERIOD = 1;
 const double ERR_CONF_INT_REFINE = 0.8;
 const double ERR_CONF_INT_COURSE = 0.2;
+const int REFINE_ON  = 0;
 
 // Solver Parameters
 const double THETA = 0.5;
@@ -35,9 +36,9 @@ const bool STYLE_AMERICAN = false;
 
 // Domain Parameters
 const int DIM = 2;
-std::vector<double> X1_RANGE = { -10.0, 10.0};
-std::vector<double> X2_RANGE = { -10.0, 10.0};
-std::vector<double> X3_RANGE = { -10.0, 10.0};
+std::vector<double> X1_RANGE = { -1, 1};
+std::vector<double> X2_RANGE = { -1, 1};
+std::vector<double> X3_RANGE = { -1, 1};
 
 const double DT = 1.0 / 100;
 const double T = 1.0 * 25.0 * DT;
