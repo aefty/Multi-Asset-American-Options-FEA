@@ -103,6 +103,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named ../src/main
+
+# Build rule for target.
+../src/main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ../src/main
+.PHONY : ../src/main
+
+# fast build rule for target.
+../src/main/fast:
+	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/build
+.PHONY : ../src/main/fast
+
+#=============================================================================
 # Target rules for targets named debug
 
 # Build rule for target.
@@ -140,19 +153,6 @@ info: cmake_check_build_system
 info/fast:
 	$(MAKE) -f CMakeFiles/info.dir/build.make CMakeFiles/info.dir/build
 .PHONY : info/fast
-
-#=============================================================================
-# Target rules for targets named main
-
-# Build rule for target.
-main: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 main
-.PHONY : main
-
-# fast build rule for target.
-main/fast:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
-.PHONY : main/fast
 
 #=============================================================================
 # Target rules for targets named release
@@ -224,7 +224,7 @@ main.o: main.cc.o
 
 # target to build an object file
 main.cc.o:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cc.o
+	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/main.cc.o
 .PHONY : main.cc.o
 
 main.i: main.cc.i
@@ -232,7 +232,7 @@ main.i: main.cc.i
 
 # target to preprocess a source file
 main.cc.i:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cc.i
+	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/main.cc.i
 .PHONY : main.cc.i
 
 main.s: main.cc.s
@@ -240,7 +240,7 @@ main.s: main.cc.s
 
 # target to generate assembly for a file
 main.cc.s:
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main.cc.s
+	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/main.cc.s
 .PHONY : main.cc.s
 
 # Help Target
@@ -249,11 +249,11 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... ../src/main"
 	@echo "... debug"
 	@echo "... distclean"
 	@echo "... edit_cache"
 	@echo "... info"
-	@echo "... main"
 	@echo "... rebuild_cache"
 	@echo "... release"
 	@echo "... run"

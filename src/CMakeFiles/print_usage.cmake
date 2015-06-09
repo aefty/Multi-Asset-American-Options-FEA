@@ -1,7 +1,7 @@
 MESSAGE(
 "###
 #
-#  Project  main  set up with  deal.II-8.2.1  found at
+#  Project  ../src/main  set up with  deal.II-8.2.1  found at
 #      /Applications/deal.II.app/Contents/Resources
 #
 #  CMAKE_BUILD_TYPE:          Debug

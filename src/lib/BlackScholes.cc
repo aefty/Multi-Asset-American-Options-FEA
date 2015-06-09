@@ -40,17 +40,17 @@ class BlackScholes {
 
 	DataOut<dim> data_out;
 
-	ConstraintMatrix     constraints;
+	ConstraintMatrix     hanging_node_constraints;
 
 	SparsityPattern      sparsity_pattern;
-	PETScWrappers::MPI::SparseMatrix <double> mass_matrix;
-	PETScWrappers::MPI::SparseMatrix <double> laplace_matrix;
-	PETScWrappers::MPI::SparseMatrix <double> advection_matrix;
-	PETScWrappers::MPI::SparseMatrix <double> system_matrix;
+	PETScWrappers::MPI::SparseMatrix mass_matrix;
+	PETScWrappers::MPI::SparseMatrix laplace_matrix;
+	PETScWrappers::MPI::SparseMatrix advection_matrix;
+	PETScWrappers::MPI::SparseMatrix system_matrix;
 
-	PETScWrappers::MPI::Vector <double>       solution;
-	PETScWrappers::MPI::Vector <double>       old_solution;
-	PETScWrappers::MPI::Vector <double>       system_rhs;
+	PETScWrappers::MPI::Vector solution;
+	PETScWrappers::MPI::Vector old_solution;
+	PETScWrappers::MPI::Vector system_rhs;
 
 	MPI_Comm mpi_communicator;
 	const unsigned int n_mpi_processes;
@@ -68,14 +68,16 @@ class BlackScholes {
 	/**
 	 * Constructor
 	 */
-	BlackScholes():
+	BlackScholes()
+		:
 		fe(1), dof_handler(triangulation),
 		time_step(DT),
-		theta(THETA) {},
-	      mpi_communicator (MPI_COMM_WORLD),
-	      n_mpi_processes (Utilities::MPI::n_mpi_processes(mpi_communicator)),
-	      this_mpi_process (Utilities::MPI::this_mpi_process(mpi_communicator)),
-	pcout (std::cout) {
+		theta(THETA),
+		//MPI init standard data set
+		mpi_communicator (MPI_COMM_WORLD),
+		n_mpi_processes (Utilities::MPI::n_mpi_processes(mpi_communicator)),
+		this_mpi_process (Utilities::MPI::this_mpi_process(mpi_communicator)),
+		pcout (std::cout) {
 		pcout.set_condition(this_mpi_process == 0);
 	};
 
@@ -91,14 +93,14 @@ class BlackScholes {
 	 */
 	void run() {
 
+		const unsigned int initial_global_refinement = 4;
 		const unsigned int n_adaptive_pre_refinement_steps = 4;
 		unsigned int pre_refinement_step = 0;
-		//const unsigned int initial_global_refinement = 4;
 
 		PETScWrappers::MPI::Vector tmp;
 		PETScWrappers::MPI::Vector forcing_terms;
 
-		makeMesh(4);
+		makeMesh(initial_global_refinement);
 		setup();
 		assemble();
 
@@ -178,7 +180,7 @@ class BlackScholes {
 				system_matrix.add(theta * time_step, laplace_matrix);
 
 				// 5) Eliminate hanging nodes from the right and left hand side
-				constraints.condense (system_matrix, system_rhs);
+				//constraints.condense (system_matrix, system_rhs);
 
 				// There is one more operation we need to do before we
 				// can solve it: boundary values. To this end, we create
@@ -205,7 +207,7 @@ class BlackScholes {
 
 				// With this out of the way, all we have to do is solve the
 				// system, generate graphical data, and...
-				solve_time_step();
+				solve();
 
 
 				// ...take care of mesh refinement. Here, what we want to do is
@@ -327,44 +329,46 @@ class BlackScholes {
 		hanging_node_constraints.clear ();
 		DoFTools::make_hanging_node_constraints (dof_handler, hanging_node_constraints);
 		hanging_node_constraints.close();
-
+		// PDS: Note that it remains to assemble the system
 	}
 
-	void assemble_F (const RightHandSide<dim> &rhs_function, PETScWrappers::MPI::Vector &f) {
-		QGauss<dim>  quadrature_formula(2);
-		FEValues<dim> fe_values (fe, quadrature_formula,
-		                         update_values   | update_gradients |
-		                         update_quadrature_points | update_JxW_values);
-		const unsigned int   dofs_per_cell = fe.dofs_per_cell;
-		const unsigned int   n_q_points    = quadrature_formula.size();
-		std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
-		typename DoFHandler<dim>::active_cell_iterator
-		cell = dof_handler.begin_active(),
-		endc = dof_handler.end();
+	/*
+		void assemble_F (const RightHandSide<dim> &rhs_function, PETScWrappers::MPI::Vector &f) {
+			QGauss<dim>  quadrature_formula(2);
+			FEValues<dim> fe_values (fe, quadrature_formula,
+			                         update_values   | update_gradients |
+			                         update_quadrature_points | update_JxW_values);
+			const unsigned int   dofs_per_cell = fe.dofs_per_cell;
+			const unsigned int   n_q_points    = quadrature_formula.size();
+			std::vector<types::global_dof_index> local_dof_indices (dofs_per_cell);
+			typename DoFHandler<dim>::active_cell_iterator
+			cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
 
-		{
-			const types::global_dof_index n_local_dofs
-			    = DoFTools::count_dofs_with_subdomain_association (dof_handler,
-			            this_mpi_process);
-			f.reinit (mpi_communicator, dof_handler.n_dofs(), n_local_dofs);
-		}
+			{
+				const types::global_dof_index n_local_dofs
+				    = DoFTools::count_dofs_with_subdomain_association (dof_handler,
+				            this_mpi_process);
+				f.reinit (mpi_communicator, dof_handler.n_dofs(), n_local_dofs);
+			}
 
-		for (; cell != endc; ++cell) {
-			if (cell->subdomain_id() == this_mpi_process) {
-				cell->get_dof_indices (local_dof_indices);
-				fe_values.reinit (cell);
-				for (unsigned int q_point = 0; q_point < n_q_points; ++q_point) {
-					for (unsigned int i = 0; i < dofs_per_cell; ++i) {
-						f(local_dof_indices[i]) +=
-						    fe_values.shape_value (i, q_point) *
-						    rhs_function.value(fe_values.quadrature_point(q_point)) *
-						    fe_values.JxW (q_point);
+			for (; cell != endc; ++cell) {
+				if (cell->subdomain_id() == this_mpi_process) {
+					cell->get_dof_indices (local_dof_indices);
+					fe_values.reinit (cell);
+					for (unsigned int q_point = 0; q_point < n_q_points; ++q_point) {
+						for (unsigned int i = 0; i < dofs_per_cell; ++i) {
+							f(local_dof_indices[i]) +=
+							    fe_values.shape_value (i, q_point) *
+							    rhs_function.value(fe_values.quadrature_point(q_point)) *
+							    fe_values.JxW (q_point);
+						}
 					}
 				}
 			}
+			f.compress(VectorOperation::add);
 		}
-		f.compress(VectorOperation::add);
-	}
+	*/
 
 	void assemble() {
 		QGauss<dim>  quadrature_formula(dim);
@@ -373,11 +377,11 @@ class BlackScholes {
 		const unsigned int   dofs_per_cell = fe.dofs_per_cell;
 		const unsigned int   n_q_points    = quadrature_formula.size();
 
-		FullMatrix<double>   unit_mass (dofs_per_cell, dofs_per_cell); // Mass
-		FullMatrix<double>   unit_lapalce (dofs_per_cell, dofs_per_cell); // Laplace
+		FullMatrix<double>   unit_mass      (dofs_per_cell, dofs_per_cell); // Mass
+		FullMatrix<double>   unit_lapalce   (dofs_per_cell, dofs_per_cell); // Laplace
 		FullMatrix<double>   unit_advection (dofs_per_cell, dofs_per_cell); // Advection
-		FullMatrix<double>   unit_system (dofs_per_cell, dofs_per_cell); // System Matrix
-		Vector<double>       cell_rhs            (dofs_per_cell); // PDS: this is just a placeholder
+		FullMatrix<double>   unit_system    (dofs_per_cell, dofs_per_cell); // System Matrix
+		Vector<double>       cell_rhs       (dofs_per_cell); // PDS: this is just a placeholder
 
 		Tensor<1, dim>  B;
 
@@ -471,11 +475,10 @@ class BlackScholes {
 
 		cg.solve (system_matrix, solution, system_rhs, preconditioner);
 
-
 		// I dont think we need this....
-		PETScWrappers::Vector localized_solution (solution);
-		hanging_node_constraints.distribute (localized_solution);
-		solution = localized_solution;
+		//PETScWrappers::Vector localized_solution (solution);
+		//hanging_node_constraints.distribute (localized_solution);
+		//solution = localized_solution;
 
 		std::cout << "     " << solver_control.last_step();
 		std::cout << " CG iterations." << std::endl;
@@ -489,6 +492,9 @@ class BlackScholes {
 
 		//PDS:  on rank 0 only
 		if (!this_mpi_process) {
+
+			DataOut<dim> data_out;
+
 			data_out.attach_dof_handler(dof_handler);
 			data_out.add_data_vector(solution, "V");
 
@@ -507,7 +513,7 @@ class BlackScholes {
 	 * @param min_grid_level [description]
 	 * @param max_grid_level [description]
 	 */
-	void refine (const unsigned int min_grid_level, const unsigned int max_grid_level) {
+	void refine_mesh (const unsigned int min_grid_level, const unsigned int max_grid_level) {
 
 		Vector<float> estimated_error_per_cell (triangulation.n_active_cells());
 

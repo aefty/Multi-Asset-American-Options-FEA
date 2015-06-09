@@ -14,6 +14,12 @@
 # EXTERNAL cache entries
 ########################
 
+//Value Computed by CMake
+../src/main_BINARY_DIR:STATIC=/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src
+
+//Value Computed by CMake
+../src/main_SOURCE_DIR:STATIC=/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src
+
 //Path to a program.
 CMAKE_AR:FILEPATH=/opt/local/bin/ar
 
@@ -127,7 +133,7 @@ CMAKE_OSX_DEPLOYMENT_TARGET:STRING=
 CMAKE_OSX_SYSROOT:STRING=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=main
+CMAKE_PROJECT_NAME:STATIC=../src/main
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/opt/local/bin/ranlib

@@ -43,4 +43,4 @@ std::vector<double> X3_RANGE = { -1, 1};
 const double DT = 1.0 / 100;
 const double T = 1.0 * 25.0 * DT;
 
-const long double EPS = 0.0000001; // 10^-6
+const long double EPS = 1e-6; // 10^-6
