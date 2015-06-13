@@ -1,7 +1,13 @@
-// PDS: Modified by Patrick Sanan, May 2015
-// PDS: Modifications should be commented like this
-// PDS: Original Copyright notice:
-/* ---------------------------------------------------------------------
+/**
+ * main.cc
+ * =============
+ * Entry function
+ *
+ * HPC : Software Atelier 2015
+ * Multi-Asset American Options Finite Element Implementation
+ * Edited by: Aryan Eftekhari
+ *
+ * ---------------------------------------------------------------------
  *
  * Copyright (C) 2013 by the deal.II authors
  *
@@ -15,10 +21,8 @@
  * the top level of the deal.II distribution.
  *
  * ---------------------------------------------------------------------
-
  *
  * Author: Wolfgang Bangerth, Texas A&M University, 2013
- *
  */
 
 
@@ -52,8 +56,12 @@
 #include <deal.II/numerics/solution_transfer.h>
 #include <deal.II/numerics/matrix_tools.h>
 
+#include <deal.II/lac/sparse_direct.h>
+
 #include <fstream>
 #include <iostream>
+#include <algorithm>
+#include <math.h>
 
 #include <deal.II/base/conditional_ostream.h>
 #include <deal.II/base/utilities.h>
@@ -66,80 +74,48 @@
 #include <deal.II/dofs/dof_renumbering.h>
 #include <sstream>
 
-
-using namespace dealii;
-#include "lib/Boundary.cc"
-#include "lib/InitialValue.cc"
-#include "lib/RightHandSide.cc"
+namespace BS_MAA {
+	using namespace dealii;
+#include "problem/config.cc"
 #include "lib/BlackScholes.cc"
+
+}
 
 
 int main(int argc, char ** argv) {
-   try {
-      using namespace dealii;
+	try {
+		using namespace dealii;
+		using namespace BS_MAA;
 
-      Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
+		Utilities::MPI::MPI_InitFinalize mpi_initialization(argc, argv, 1);
 
-      deallog.depth_console(0);
+		deallog.depth_console(0);
 
-      int const dim = 1;
-      double R;
-      Tensor<2, dim>  D;
-      Tensor<1, dim>  C;
+		BlackScholes<DIM> blackScholes;
+		blackScholes.run();
 
-      if (dim == 1) {
-         std::cout << "Dim 1";
-         R = .1;
-         D[0][0] = .1;
-         C[0] = R - 0.5 * (.1);
-      } else {
-         std::cout << "Dim 2";
-         R = .1;
-         D[0][0] = .09;
-         D[0][1] = .045;
-         D[1][0] = .045;
-         D[1][1] = .09;
+		//BlackScholes.output_results();
 
-         C[0] = R - 0.5 * (.09);
-         C[1] = R - 0.5 * (.09);
-      }
+	} catch (std::exception &exc) {
+		std::cerr << std::endl << std::endl
+		          << "----------------------------------------------------"
+		          << std::endl;
+		std::cerr << "Exception on processing: " << std::endl << exc.what()
+		          << std::endl << "Aborting!" << std::endl
+		          << "----------------------------------------------------"
+		          << std::endl;
 
-      // Democratization Parameters
-      double T_DISC = 1.0 / 100;
-      double T_RANGE = 1.0;
+		return 1;
+	} catch (...) {
+		std::cerr << std::endl << std::endl
+		          << "----------------------------------------------------"
+		          << std::endl;
+		std::cerr << "Unknown exception!" << std::endl << "Aborting!"
+		          << std::endl
+		          << "----------------------------------------------------"
+		          << std::endl;
+		return 1;
+	}
 
-      double X_DISC = 4;
-      std::vector <double> X_RANGE = { -10, 2};
-
-      double THETA = 0.5;
-
-      BlackScholes<dim> backscholes_solver(D, C, R, X_DISC, X_RANGE, T_DISC, T_RANGE, THETA);
-
-      backscholes_solver.run();
-
-   } catch (std::exception &exc) {
-      //PDS: Note that we do nothing to gracefully output the above (no perr),
-      //PDS:  so these messages will likely be garbled if they are encountered on
-      //PDS:  multiple MPI ranks
-      std::cerr << std::endl << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
-      std::cerr << "Exception on processing: " << std::endl << exc.what()
-                << std::endl << "Aborting!" << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
-
-      return 1;
-   } catch (...) {
-      std::cerr << std::endl << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
-      std::cerr << "Unknown exception!" << std::endl << "Aborting!"
-                << std::endl
-                << "----------------------------------------------------"
-                << std::endl;
-      return 1;
-   }
-
-   return 0;
+	return 0;
 }

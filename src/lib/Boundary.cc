@@ -1,3 +1,44 @@
+template<int dim>
+class BoundaryValues : public Function<dim> {
+  public:
+	virtual double value (const Point<dim> & S , const unsigned int component) const {
+		Assert(component == 0, ExcInternalError());
+
+		double time = this->get_time();
+		std::vector<double> S_temp ;
+		double R = 0.1;
+
+		if (dim == 3) {
+			S_temp = {S[0], S[1], S[2]};
+		}  else if (dim == 2) {
+			S_temp = {S[0], S[1]};
+		} else {
+			S_temp = {S[0]};
+		}
+		return this->payoffAverage(S_temp, time, R);
+	};
+
+  private:
+	virtual double payoffAverage(std::vector<double> & X, double time,  const double r) const {
+
+		double discount  = std::exp(-1. * r * time);
+		double sum = 0.;
+
+		for (int i = 0; i < dim; ++i) {
+			sum += X[i];
+		};
+
+		double pay = (1.0 - sum / dim) * discount;
+
+		return std::max(pay , 0.0);
+	};
+
+	virtual double payoffTest() const {
+		return 1.0;
+	};
+};
+
+
 /**
  * boundary.h
  * =============
@@ -23,7 +64,7 @@
  * ---------------------------------------------------------------------
  *
  * Author: Wolfgang Bangerth, Texas A&M University, 2013
- */
+
 
 
 template<int dim>
@@ -69,5 +110,4 @@ class Boundary : public Function<dim> {
 
 
 };
-
-
+ */

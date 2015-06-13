@@ -45,7 +45,7 @@ CMAKE_BINARY_DIR = /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src
 # Include the progress variables for this target.
 include CMakeFiles/run.dir/progress.make
 
-CMakeFiles/run: main.cc
+CMakeFiles/run: ../src/main
 	$(CMAKE_COMMAND) -E cmake_progress_report /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Run ../src/main with Debug configuration"
 	../src/main

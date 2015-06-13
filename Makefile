@@ -43,10 +43,10 @@ RM = /opt/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA
+CMAKE_SOURCE_DIR = /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/build
+CMAKE_BINARY_DIR = /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -73,9 +73,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/build/CMakeFiles /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/CMakeFiles /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -219,29 +219,29 @@ strip_comments/fast:
 	$(MAKE) -f CMakeFiles/strip_comments.dir/build.make CMakeFiles/strip_comments.dir/build
 .PHONY : strip_comments/fast
 
-src/main.o: src/main.cc.o
-.PHONY : src/main.o
+main.o: main.cc.o
+.PHONY : main.o
 
 # target to build an object file
-src/main.cc.o:
-	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/src/main.cc.o
-.PHONY : src/main.cc.o
+main.cc.o:
+	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/main.cc.o
+.PHONY : main.cc.o
 
-src/main.i: src/main.cc.i
-.PHONY : src/main.i
+main.i: main.cc.i
+.PHONY : main.i
 
 # target to preprocess a source file
-src/main.cc.i:
-	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/src/main.cc.i
-.PHONY : src/main.cc.i
+main.cc.i:
+	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/main.cc.i
+.PHONY : main.cc.i
 
-src/main.s: src/main.cc.s
-.PHONY : src/main.s
+main.s: main.cc.s
+.PHONY : main.s
 
 # target to generate assembly for a file
-src/main.cc.s:
-	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/src/main.cc.s
-.PHONY : src/main.cc.s
+main.cc.s:
+	$(MAKE) -f CMakeFiles/../src/main.dir/build.make CMakeFiles/../src/main.dir/main.cc.s
+.PHONY : main.cc.s
 
 # Help Target
 help:
@@ -260,9 +260,9 @@ help:
 	@echo "... runclean"
 	@echo "... sign"
 	@echo "... strip_comments"
-	@echo "... src/main.o"
-	@echo "... src/main.i"
-	@echo "... src/main.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 .PHONY : help
 
 
