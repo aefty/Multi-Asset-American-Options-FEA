@@ -82,7 +82,8 @@ int main(int argc, char ** argv) {
 
       deallog.depth_console(0);
 
-      int const dim = 1;
+      int const dim = 3;
+      int AMERICAN = false;
       double R;
       Tensor<2, dim>  D;
       Tensor<1, dim>  C;
@@ -90,30 +91,52 @@ int main(int argc, char ** argv) {
       if (dim == 1) {
          std::cout << "Dim 1";
          R = .1;
-         D[0][0] = .1;
-         C[0] = R - 0.5 * (.1);
-      } else {
+         D[0][0] = 0.3 * 0.5;
+         C[0] = R - D[0][0];
+      } else if (dim == 2) {
          std::cout << "Dim 2";
          R = .1;
-         D[0][0] = .09;
-         D[0][1] = .045;
-         D[1][0] = .045;
-         D[1][1] = .09;
+         D[0][0] = .3   * 0.5;
+         D[0][1] = .0   * 0.5;
+         D[1][0] = .0   * 0.5;
+         D[1][1] = .3   * 0.5;
 
-         C[0] = R - 0.5 * (.09);
-         C[1] = R - 0.5 * (.09);
+         C[0] = R - D[0][0];
+         C[1] = R - D[1][1];
+
+      } else if (dim == 3) {
+         std::cout << "Dim 2";
+         R = .1;
+         D[0][0] = .2   * 0.5;
+         D[0][0] = .045 * 0.5;
+         D[0][1] = .045 * 0.5;
+
+         D[1][1] = .2   * 0.5;
+         D[0][0] = .045 * 0.5;
+         D[1][0] = .045 * 0.5;
+
+         D[2][2] = .2   * 0.5;
+         D[0][0] = .045 * 0.5;
+         D[1][0] = .045 * 0.5;
+
+         C[0] = R - D[0][0];
+         C[1] = R - D[1][1];
+      } else {
+         std::cout << "Problem Dim Exceeded. \n";
+         return 0;
       }
 
+
       // Democratization Parameters
-      double T_DISC = 1.0 / 100;
-      double T_RANGE = 1.0;
+      double T_DISC = 1.0 / 12.0;
+      double T_RANGE = 3;
 
-      double X_DISC = 4;
-      std::vector <double> X_RANGE = { -10, 2};
+      double X_DISC = 3;
+      std::vector <double> X_RANGE = { -10.0, 2.0};
 
-      double THETA = 0.5;
+      double THETA = 0;
 
-      BlackScholes<dim> backscholes_solver(D, C, R, X_DISC, X_RANGE, T_DISC, T_RANGE, THETA);
+      BlackScholes<dim> backscholes_solver(D, C, R, X_DISC, X_RANGE, T_DISC, T_RANGE, THETA , AMERICAN);
 
       backscholes_solver.run();
 

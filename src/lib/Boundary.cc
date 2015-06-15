@@ -15,7 +15,8 @@ class BoundaryValues : public Function<dim> {
 		} else {
 			S_temp = {S[0]};
 		}
-		return this->payoffAverage(S_temp, time, R);
+		//return this->payoffAverage(S_temp, time, R);
+		return this->payoffTest();
 	};
 
   private:
