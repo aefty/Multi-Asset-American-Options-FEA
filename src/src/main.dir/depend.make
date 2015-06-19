@@ -1686,8 +1686,6 @@ src/main.dir/main.cc.o: /Applications/deal.II.app/Contents/Resources/opt/trilino
 src/main.dir/main.cc.o: /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_SerialCommData.h
 src/main.dir/main.cc.o: /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_config.h
 src/main.dir/main.cc.o: lib/BlackScholes.cc
-src/main.dir/main.cc.o: lib/Boundary.cc
-src/main.dir/main.cc.o: lib/InitialValue.cc
-src/main.dir/main.cc.o: lib/RightHandSide.cc
+src/main.dir/main.cc.o: lib/IntrinsicValue.cc
 src/main.dir/main.cc.o: main.cc
 

@@ -162,11 +162,9 @@ class BlackScholes {
             };
          };
 
-         old_solution = solution;
          output_results();
+         old_solution = solution;
       }
-
-
 
       if (this_mpi_process == 0) {
          pcout << "\n+Run (" << n_mpi_processes << " #Procs) :"  << MPI_Wtime() - t_wall  << std::endl;

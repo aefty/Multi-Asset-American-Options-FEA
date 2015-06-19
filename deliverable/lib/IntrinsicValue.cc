@@ -1,12 +1,6 @@
-/**
- * Transform.h
- * =============
- * Penalty term
- *
- * HPC : Software Atelier 2015
- * Multi-Asset American Options Finite Element Implementation
- *
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
+ * Edited By: Aryan Eftekhari & Edoardo Vecchi 2015 (Based on modification done by Patrick Sanan, May 2015 )
+ * Università della Svizzera italiana
  *
  * Copyright (C) 2013 by the deal.II authors
  *
@@ -24,37 +18,19 @@
  * Author: Wolfgang Bangerth, Texas A&M University, 2013
  */
 
-template<int dim>
-class Transform : public Function<dim> {
-	/**
-	 * Variable Definition
-	 */
-	std::vector<double> tempVec;
-
+template <int dim>
+class IntrinsicValue : public Function<dim> {
   public:
-	Transform() {};
+	IntrinsicValue () : Function<dim>() {}
+	virtual double value (const Point<dim>  & x , const unsigned int component) const {
+		Assert (component == 0, ExcInternalError());
 
-	virtual double S2X (std::vector<double> S) const {
-
-		tempVec.clear();
-
-		for (int i = 0; i < dim; ++i) {
-			tempVec.push_back(log(S[i]));
-		}
-
-		return tempVec;
-	};
-
-	virtual double X2S (std::vector<double> X) const {
-
-		tempVec.clear();
+		double temp = 0.0;
 
 		for (int i = 0; i < dim; ++i) {
-			tempVec.push_back(exp (X[i]));
-		}
+			temp += std::exp(x[i]) / dim;
+		};
 
-		return tempVec;
+		return std::max(1.0 - temp, 0.0);
 	};
-
-  private:
 };

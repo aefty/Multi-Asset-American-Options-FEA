@@ -1687,7 +1687,5 @@ src/main.dir/main.cc.o
  /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_SerialCommData.h
  /Applications/deal.II.app/Contents/Resources/opt/trilinos-70824c5/include/Epetra_config.h
  /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/BlackScholes.cc
- /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/Boundary.cc
- /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/InitialValue.cc
- /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/RightHandSide.cc
+ /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/IntrinsicValue.cc
  /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/main.cc

@@ -19312,11 +19312,7 @@ Epetra_Data.h
 
 /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/BlackScholes.cc
 
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/Boundary.cc
-
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/InitialValue.cc
-
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/RightHandSide.cc
+/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/IntrinsicValue.cc
 
 /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/main.cc
 deal.II/base/utilities.h
@@ -19377,6 +19373,8 @@ fstream
 -
 iostream
 -
+cmath
+-
 deal.II/base/conditional_ostream.h
 -
 deal.II/base/utilities.h
@@ -19397,12 +19395,8 @@ deal.II/dofs/dof_renumbering.h
 -
 sstream
 -
-lib/Boundary.cc
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/Boundary.cc
-lib/InitialValue.cc
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/InitialValue.cc
-lib/RightHandSide.cc
-/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/RightHandSide.cc
+lib/IntrinsicValue.cc
+/Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/IntrinsicValue.cc
 lib/BlackScholes.cc
 /Users/aryan/gd/Projects/Multi-Asset-American-Options-FEA/src/lib/BlackScholes.cc
 
